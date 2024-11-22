@@ -85,9 +85,22 @@ class alertMe():
     if(self.urlResponseCode == 200):
       self.checkResponse()
     else: 
-        print(self.getCSTTime()," Something Went Wrong While Getting Website Info ")
-        self.logger.info(" Something Went Wrong While Getting Website Info ") 
-        raise SystemExit(0)
+        self.notify_badresponse()
+        print(self.getCSTTime()," Something Went Wrong While Getting Website Info {%s} "%self.urlResponseCode)
+        self.logger.info(" Something Went Wrong While Getting Website Info {%s} "%self.urlResponseCode)
+        postLooprun = True
+        while(postLooprun == True):
+          print(self.getCSTTime(), " Sleeping for 60 Seconds.. ")
+          self.logger.info(" Sleeping for 60 Seconds.. ")
+          sleep(62)
+          if(self.urlResponseCode == 200):
+            self.notify_goodresponse()
+            self.checkResponse()
+            postLooprun = False
+          else:
+            print(self.getCSTTime()," Resonse From Website: {%s} Going To Attempt To Reach Again "%self.urlResponseCode)
+            self.logger.info(" SResonse From Website: {%s} Going To Attempt To Reach Again "%self.urlResponseCode)
+          
 
   def checkResponse(self): 
     print(self.getCSTTime()," Checking Response From Website..Going To Parse ")
@@ -132,8 +145,8 @@ class alertMe():
     self.urlResponseCode = response.status_code 
     self.urlResponse = response.text
 
-    print(self.getCSTTime()," Succesfully Found HTTP Reponse From Website ")
-    self.logger.info(" Succesfully Found HTTP Reponse From Website ")
+    print(self.getCSTTime()," Succesfully Found HTTP Reponse From Website Response: {%s} "%self.urlResponseCode)
+    self.logger.info(" Succesfully Found HTTP Reponse From Website Response: {%s} "%self.urlResponseCode)
     self.logger.info(" Reponse From Website: %s"%response.text)
 
   def notify_user(self):
@@ -178,11 +191,27 @@ class alertMe():
 
   def notify_restart(self):
     discord = Discord(url="https://discord.com/api/webhooks/795760900157341758/HMt5jaWkf2L_JaJbjtvekY_uxc6pHB6mkFUDlrSf33ZyyrwKwkw2TTxRpqowKYHB6ayu")
-    discord.post(embeds=[{"title": "Monitor Has Been Restarted For Product: %s"%(self.Title), "color": "14177041" ,"timestap" : "now"}])
+    discord.post(embeds=[{"title": "Monitor Has Been Restarted For Nintendo Tickets", "color": "14177041" ,"timestap" : "now"}])
     #https://www.spycolor.com/  color is in decimal format
 
     print(self.getCSTTime()," Succesfully Sent Monitor Restart Notification ")
     self.logger.info(" Succesfully Sent Monitor Restart Notification ") 
+
+  def notify_badresponse(self):
+    discord = Discord(url="https://discord.com/api/webhooks/795760900157341758/HMt5jaWkf2L_JaJbjtvekY_uxc6pHB6mkFUDlrSf33ZyyrwKwkw2TTxRpqowKYHB6ayu")
+    discord.post(embeds=[{"title": "Monitor Has Found Bad Response From Website %s"%(self.urlResponseCode), "color": "14177041" ,"timestap" : "now"}])
+    #https://www.spycolor.com/  color is in decimal format
+
+    print(self.getCSTTime()," Succesfully Sent Monitor badresponse Notification ")
+    self.logger.info(" Succesfully Sent Monitor badresponse Notification ") 
+
+  def notify_goodresponse(self):
+    discord = Discord(url="https://discord.com/api/webhooks/795760900157341758/HMt5jaWkf2L_JaJbjtvekY_uxc6pHB6mkFUDlrSf33ZyyrwKwkw2TTxRpqowKYHB6ayu")
+    discord.post(embeds=[{"title": "Monitor Has Found Good Response From Website %s"%(self.urlResponseCode), "color": "14177041" ,"timestap" : "now"}])
+    #https://www.spycolor.com/  color is in decimal format
+
+    print(self.getCSTTime()," Succesfully Sent Monitor goodresponse Notification ")
+    self.logger.info(" Succesfully Sent Monitor goodresponse Notification ") 
 
   def logger(self):
     #Create and configure logger 
